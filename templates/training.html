@@ -1,16 +1,42 @@
 {% extends "base.html" %}
 {% block title %}Training Points{% endblock %}
 {% block content %}
-<h1>Record Training Points</h1>
-<form action="/add_points" method="post">
-    <select name="player_id" required>
-         <option value="">Select Player</option>
-         {% for player in players %}
-             <option value="{{ player.id }}">{{ player.name }}</option>
-         {% endfor %}
-    </select>
-    <input type="date" name="date" required>
-    <input type="number" name="points" placeholder="Enter points" required>
-    <button type="submit">Add Points</button>
+<h1>Add Training Points</h1>
+
+<form method="POST" id="points-form">
+    <label for="date">Training Date:</label>
+    <input type="date" id="date" name="date" value="{{ date }}" required>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Player Name</th>
+            <th>Points</th>
+        </tr>
+        {% for player in players %}
+        <tr>
+            <td>{{ player.name }}</td>
+            <td>
+                <input type="number"
+                       name="points_{{ player.id }}"
+                       min="0"
+                       value="{{ existing_points[player.id] if player.id in existing_points else '' }}">
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+    <button type="submit">Submit Points</button>
 </form>
+
+<script>
+    const dateInput = document.getElementById('date');
+
+    dateInput.addEventListener('change', function() {
+        const selectedDate = this.value;
+        // Reload the page with the selected date as a query parameter
+        window.location.href = `{{ url_for('training.training') }}?date=${selectedDate}`;
+    });
+</script>
+
 {% endblock %}

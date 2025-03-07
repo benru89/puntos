@@ -1,10 +1,10 @@
+# models.py
 import datetime
-from app import db
+from extensions import db
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    # Relationship to access the player's training points
     points = db.relationship('TrainingPoints', backref='player', lazy=True)
 
 class TrainingPoints(db.Model):
