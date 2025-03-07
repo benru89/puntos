@@ -18,7 +18,7 @@
 </form>
 
 <!-- Scrollable table -->
-<div class="overflow-x-auto w-full">
+<div class="overflow-x-auto w-full flex justify-end">
   <table class="table-auto min-w-full text-xs border-0 margin-top-10">
     <thead class="bg-gray-800">
       <tr>
@@ -46,15 +46,23 @@
 
     <tbody>
       {% set total_players = players|length %}
+      {% if total_players > 10 %}
+        {% set sorted_players = players|sort(attribute='id', reverse=True) %}
+        {% set threshold_red = total_points[sorted_players[-5].id] if total_players > 5 else None %}
+        {% set threshold_yellow = total_points[sorted_players[-7].id] if total_players > 7 else None %}
+      {% endif %}
+
       {% for player in players %}
         {% set row_class = "" %}
         {% if total_players > 10 %}
-          {% if loop.index > total_players - 5 %}
+          {% if loop.index > total_players - 5 and total_points[player.id] < threshold_red %}
             {% set row_class = "bg-red-300 text-dark" %} <!-- Bottom 5 -->
+          {% elif total_points[player.id] < threshold_red  %}
+            {% set row_class = "bg-red-300 text-dark" %} <!-- Bottom 5 and ties -->
+          {% elif total_points[player.id] <= threshold_red  %}
+            {% set row_class = "bg-yellow-300 text-dark" %} <!-- Bottom 5 and ties -->
           {% elif loop.index > total_players - 7 %}
-            {% set row_class = "bg-yellow-300 text-dark" %} <!-- Next 2 -->
-          {% elif loop.index == 1 %}
-            {% set row_class = "bg-green-300 text-dark" %} <!-- Top player -->
+            {% set row_class = "bg-yellow-300 text-dark" %}
           {% endif %}
         {% endif %}
 
@@ -85,26 +93,7 @@
         </tr>
       {% endfor %}
     </tbody>
-
-    <!-- Add Player Row -->
-    <tfoot>
-      <form method="POST" action="{{url_for('players.add_player')}}">
-        <tr class="bg-gray-800">
-          <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center border-r border-gray-700" style="min-width:30px;">
-            <button type="submit" class="text-sm">+</button>
-          </td>
-          <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 border-r border-gray-700" style="min-width:80px;">
-            <input type="text" name="name" placeholder="Jugador" required class="bg-gray-700 text-white rounded px-1 py-0.5 w-full"/>
-          </td>
-          {% for date in training_dates %}
-            <td class="px-1 py-1 border-r border-gray-700 text-center">-</td>
-          {% endfor %}
-          <td class="sticky right-0 z-10 bg-gray-600 text-white border-l border-gray-700 px-1 py-1 text-center">-</td>
-        </tr>
-      </form>
-    </tfoot>
   </table>
 </div>
-
 
 {% endblock %}
