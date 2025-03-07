@@ -2,8 +2,8 @@
 {% block title %}Entrenamiento{% endblock %}
 {% block content %}
 
-<!-- Date picker form -->
-<form method="POST" id="trainingForm" class="mb-2 flex gap-2 items-center text-xs">
+<!-- Date picker form (Fixed at the Top) -->
+<form method="POST" id="trainingForm" class="mb-0.5 flex gap-2 items-center text-primary text-xs bg-gray-900 p-2 rounded-md">
   <label for="dateInput">Fecha:</label>
   <input
     type="date"
@@ -11,9 +11,8 @@
     name="date"
     value="{{ date }}"
     required
-    class="bg-gray-700 text-white rounded px-1 py-0.5 w-28"
+    class="bg-gray-700 text-primary rounded px-1 py-0.5 w-28 text-xs w-16"
   />
-
 </form>
 
 <!-- JS to auto-reload on date change -->
@@ -24,38 +23,48 @@
   });
 </script>
 
-<!-- Scrollable table -->
-<div class="overflow-x-auto w-full">
-  <form method="POST">
-    <input type="hidden" name="date" value="{{ date }}">
-    <table class="table-auto w-full border-collapse whitespace-nowrap border border-gray-700 text-xs">
-      <thead>
-        <tr class="bg-gray-800">
-          <th class="px-1 py-1 text-left border-r border-gray-700">Jugador</th>
-          <th class="px-1 py-1 text-center">Puntos</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for player in players %}
-        <tr class="border-b border-gray-700">
-          <td class="px-1 py-1 border-r border-gray-700 text-left">{{ player.name }}</td>
-          <td class="px-1 py-1 text-center">
-            <input
-              type="number"
-              name="points_{{ player.id }}"
-              value="{{ existing_points.get(player.id, '') }}"
-              min="0"
-              class="bg-gray-700 text-white rounded px-1 py-0.5 w-16 text-center"
-            />
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <button type="submit" class="mt-2 bg-primary text-dark rounded px-2 py-0.5 font-semibold">
-      Guardar puntos
-    </button>
-  </form>
+<!-- Table Container (With Scrollable Body) -->
+<div class="flex flex-col h-[calc(100vh-160px)]"> {# Adjust height dynamically #}
+
+  <!-- Scrollable Table Wrapper -->
+  <div class="flex-grow overflow-y-auto border border-gray-700 rounded-md">
+    <form method="POST" class="flex flex-col h-full">
+      <input type="hidden" name="date" value="{{ date }}">
+
+      <table class="table-auto w-full border-collapse whitespace-nowrap text-xs">
+        <thead class="sticky top-0 bg-gray-800 z-20">
+          <tr>
+            <th class="px-1 py-1 text-primary text-left border-r border-gray-700">Jugador</th>
+            <th class="px-1 py-1 text-primary text-center">Puntos</th>
+          </tr>
+        </thead>
+        
+        <tbody class="overflow-y-auto">
+          {% for player in players %}
+          <tr class="border-b border-gray-700">
+            <td class="px-1 py-1 border-r border-gray-700 text-left">{{ player.name }}</td>
+            <td class="px-1 py-1 text-center">
+              <input
+                type="number"
+                name="points_{{ player.id }}"
+                value="{{ existing_points.get(player.id, '') }}"
+                min="0"
+                class="bg-gray-700 text-text-primary rounded px-1 py-0.5 w-16 text-center"
+              />
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Save Button (Fixed at the Bottom) -->
+      <div class="bg-gray-900 p-2 flex justify-end sticky bottom-0 z-20">
+        <button type="submit" class="bg-primary text-sm text-dark rounded px-4 py-1 font-semibold">
+          Guardar puntos
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 {% endblock %}

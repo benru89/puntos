@@ -2,107 +2,131 @@
 {% block title %}Jugadores{% endblock %}
 {% block content %}
 
-<!-- Month/Year Selector -->
-<form method="GET" class="mb-5 flex gap-2 items-center text-xs">
-  <label class="text-primary" for="monthSelect">Mes:</label>
-  <select id="monthSelect" name="month" class="bg-gray-700 text-primary rounded px-1 py-0.5">
-    {% for m in range(1,13) %}
-      <option value="{{m}}" {% if m == month %}selected{% endif %}>{{m}}</option>
-    {% endfor %}
-  </select>
+<!-- Month/Year Selector (Fixed at the Top) -->
+<form method="GET" id="playersForm" class="mb-0.5 flex gap-2 items-center text-primary text-xs bg-gray-900 p-2 rounded-md">
+    <label for="monthSelect">Mes:</label>
+    <select id="monthSelect" name="month" class="bg-gray-700 text-primary rounded px-1 py-0.5 text-xs">
+      {% for m in range(1,13) %}
+        <option value="{{m}}" {% if m == month %}selected{% endif %}>{{m}}</option>
+      {% endfor %}
+    </select>
 
-  <label class="text-primary" for="yearInput">Año:</label>
-  <input id="yearInput" type="number" name="year" value="{{year}}" class="bg-gray-700 text-primary rounded px-1 py-0.5 w-16"/>
+    <label for="yearInput">Año:</label>
+    <input id="yearInput" type="number" name="year" value="{{year}}" class="bg-gray-700 text-primary rounded px-1 py-0.5 text-xs w-16"/>
 
-  <button type="submit" class="bg-primary text-dark rounded px-2 py-0.5">Ver</button>
+    <button type="submit" class="bg-primary text-dark font-medium rounded px-2 py-0.5 text-xs">
+      Ver
+    </button>
 </form>
 
-<!-- Scrollable table -->
-<div class="overflow-x-auto w-full">
-  <table class="table-auto min-w-full text-xs border-0 margin-top-10">
-    <thead class="bg-gray-800">
-      <tr>
-        <!-- Delete -->
-        <th class="sticky left-0 z-20 bg-gray-800 border-r border-gray-800 px-1 py-1" style="min-width:30px;"></th>
-        
-        <!-- Player Name -->
-        <th class="sticky left-8 z-20 text-primary bg-gray-800 border-r border-gray-700 px-1 py-1 text-left" style="min-width:80px;">
-          Jugador
-        </th>
+<!-- Wrapper to Control Scrolling -->
+<div class="flex flex-col h-[calc(100vh-160px)] overflow-hidden"> {# Full height control #}
 
-        <!-- Training dates -->
-        {% for date in training_dates %}
-          <th class="border-r border-gray-700 px-1 py-1 text-primary text-center" style="min-width:50px;">
-            {{ date.strftime('%d %b') }}
-          </th>
-        {% endfor %}
+  <!-- Horizontal Scroll Wrapper (Enables Width Scrolling) -->
+  <div class="overflow-x-auto w-full border border-gray-700 rounded-md">
+    
+    <!-- Table Wrapper to Ensure Scrolling Works Properly -->
+    <div class=" overflow-y-auto">
+      <form method="POST" class="flex flex-col h-full">
+        <table class="table-auto min-w-full border-collapse whitespace-nowrap text-xs w-full">
+          <thead class="sticky top-0 bg-gray-800 z-20">
+            <tr>
+              <!-- Delete -->
+              <th class="sticky left-0 z-20 bg-gray-800 border-r border-gray-800 px-1 py-1" style="min-width:30px;"></th>
+              
+              <!-- Player Name -->
+              <th class="sticky left-8 z-20 text-primary bg-gray-800 border-r border-gray-700 px-1 py-1 text-left" style="min-width:80px;">
+                Jugador
+              </th>
 
-        <!-- Sticky Total Column -->
-        <th class="sticky right-0 z-20 bg-gray-800 border-l text-primary border-black-700 px-1 py-1 text-center" style="min-width:50px;">
-          Total
-        </th>
-      </tr>
-    </thead>
+              <!-- Training Dates -->
+              {% for date in training_dates %}
+                <th class="border-r border-gray-700 px-1 py-1 text-primary text-center" style="min-width:80px;">
+                  {{ date.strftime('%d %b') }}
+                </th>
+              {% endfor %}
 
-    <tbody>
-        {% set total_players = players|length %}
+              <!-- Sticky Total Column -->
+              <th class="sticky right-0 z-20 bg-gray-800 border-l text-primary border-gray-700 px-1 py-1 text-center" style="min-width:80px;">
+                Total
+              </th>
+            </tr>
+          </thead>
+          
+          <!-- Scrollable Table Body -->
+          <tbody>
+            {% set total_players = players|length %}
 
-        {% for player in players %}
-        {% set row_class = "" %}
+            {% for player in players %}
+            {% set row_class = "" %}
 
-        {% if total_players > 10 and last_red_index is not none %}
-            {% if loop.index > last_red_index %}  {# Mark red players #}
-            {% set row_class = "bg-red-300 text-dark" %}
-            {% elif loop.index <= last_red_index and (loop.index > last_red_index - 2)  %} 
-            {% set row_class = "bg-yellow-300 text-dark" %}
+            {% if total_players > 10 and last_red_index is not none %}
+                {% if loop.index > last_red_index %}  
+                {% set row_class = "bg-red-300 text-dark" %}
+                {% elif loop.index <= last_red_index and (loop.index > last_red_index - 2)  %} 
+                {% set row_class = "bg-yellow-300 text-dark" %}
+                {% endif %}
             {% endif %}
-        {% endif %}
-        
-        <tr class="border-b border-gray-700 {{row_class}}">
-          <!-- Delete Player -->
-          <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center text-white border-0" style="min-width:30px;">
-            <form method="POST" action="{{url_for('players.delete_player', player_id=player.id)}}" onsubmit="return confirm('¿Borrar este jugador?');">
-              <button type="submit" class="text-sm">–</button>
-            </form>
-          </td>
+            
+            <tr class="border-b border-gray-700 {{row_class}}">
+              <!-- Delete Player -->
+              <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center text-white border-0" style="min-width:30px;">
+                <form method="POST" action="{{url_for('players.delete_player', player_id=player.id)}}" onsubmit="return confirm('¿Borrar este jugador?');">
+                  <button type="submit" class="text-sm">–</button>
+                </form>
+              </td>
 
-          <!-- Player Name -->
-          <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 text-left text-white border-r border-gray-700" style="min-width:80px;">
-            {{player.name}}
-          </td>
+              <!-- Player Name -->
+              <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 text-left text-white border-r border-gray-700" style="min-width:80px;">
+                {{player.name}}
+              </td>
 
-          <!-- Points per training -->
-          {% for date in training_dates %}
-            <td class="px-1 py-1 text-center font-semibold border-r border-gray-700" style="min-width:50px;">
-              {{training_points[player.id][date.strftime('%Y-%m-%d')] if date.strftime('%Y-%m-%d') in training_points[player.id] else '-'}}
-            </td>
-          {% endfor %}
+              <!-- Points per training -->
+              {% for date in training_dates %}
+                <td class="px-1 py-1 text-center font-semibold border-r border-gray-700" style="min-width:80px;">
+                  {{training_points[player.id][date.strftime('%Y-%m-%d')] if date.strftime('%Y-%m-%d') in training_points[player.id] else '-'}}
+                </td>
+              {% endfor %}
 
-          <!-- Sticky total points column -->
-          <td class="sticky right-0 z-10 bg-gray-600 text-primary border-l border-black-700 px-1 py-1 text-center font-bold" style="min-width:50px;">
-            {{total_points[player.id]}}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-
-    <tfoot>
-        <form method="POST" action="{{url_for('players.add_player')}}">
-          <tr class="bg-gray-800">
-            <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center border-r border-gray-700" style="min-width:30px;">
-              <button type="submit" class="text-sm">+</button>
-            </td>
-            <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 border-r border-gray-700" style="min-width:80px;">
-              <input type="text" name="name" placeholder="Jugador" required class="bg-gray-700 text-white rounded px-1 py-0.5 w-full"/>
-            </td>
-            {% for date in training_dates %}
-              <td class="px-1 py-1 border-r border-gray-700 text-center">-</td>
+              <!-- Sticky total points column -->
+              <td class="sticky right-0 z-10 bg-gray-600 text-primary border-l border-gray-700 px-1 py-1 text-center font-bold" style="min-width:80px;">
+                {{total_points[player.id]}}
+              </td>
+            </tr>
             {% endfor %}
-            <td class="sticky right-0 z-10 bg-gray-600 text-white border-l border-gray-700 px-1 py-1 text-center">-</td>
-          </tr>
-        </form>
-      </tfoot>
-  </table>
+          </tbody>
+
+          <!-- Add Player Row (Kept inside the Table) -->
+          <tfoot class="sticky bottom-0 bg-gray-800 z-20">
+            <tr>
+              <form method="POST" action="{{url_for('players.add_player')}}">
+                <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center border-r border-gray-700">
+                  <button type="submit" class="text-sm">+</button>
+                </td>
+                <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 border-r border-gray-700">
+                  <input type="text" name="name" placeholder="Jugador" required class="bg-gray-700 text-white rounded px-1 py-0.5 w-full"/>
+                </td>
+                {% for date in training_dates %}
+                  <td class="px-1 py-1 border-r border-gray-700 text-center">-</td>
+                {% endfor %}
+                <td class="sticky right-0 z-10 bg-gray-600 text-white border-l border-gray-700 px-1 py-1 text-center">-</td>
+              </form>
+            </tr>
+          </tfoot>
+        </table>
+      </form>
+    </div>
+  </div>
 </div>
+
+<!-- Auto-scroll to latest column -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const tableContainer = document.querySelector(".overflow-x-auto");
+    if (tableContainer) {
+      tableContainer.scrollLeft = tableContainer.scrollWidth;
+    }
+  });
+</script>
 
 {% endblock %}
