@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Players{% endblock %}
+{% block content %}
+<h1>Players</h1>
+<ul>
+  {% for player in players %}
+    <li>{{ player.name }}</li>
+  {% endfor %}
+</ul>
+<form action="/add_player" method="post">
+    <input type="text" name="name" placeholder="Enter player name" required>
+    <button type="submit">Add Player</button>
+</form>
+{% endblock %}

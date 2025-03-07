@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Training App{% endblock %}</title>
+</head>
+<body>
+    <nav>
+        <a href="/players">Players</a> | 
+        <a href="/training">Training</a>
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+</html>
