@@ -24,24 +24,33 @@
 <body class="bg-dark text-gray-100 min-h-screen flex flex-col">
 
   <!-- Navbar -->
-  <nav class="bg-gray-900 py-3 px-6 flex justify-between items-center shadow-md">
-    <h1 class="text-3l font-bold text-primary drop-shadow-md">
-      ⚽ 123 Sporting!
-    </h1>
+  <nav class="bg-gray-900 py-4 px-6 flex flex-wrap items-center justify-between shadow-md">
+    <div class="flex items-center gap-3 w-full md:w-auto justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/static/lampon.png" alt="Logo" class="h-16 w-auto">
+        <h1 class="text-2xl md:text-2xl font-bold text-primary drop-shadow-md">123 Sporting!</h1>
+      </div>
+      <button id="menu-toggle" class="md:hidden text-primary focus:outline-none text-2xl">☰</button>
+    </div>
     
-    <div class="flex gap-4">
-      <a href="{{ url_for('players.list_players') }}" class="text-white hover:text-primary transition-all">
-        🏆 Jugadores
+    <div id="menu" class="hidden md:flex flex-col md:flex-row w-full md:w-auto space-y-2 md:space-y-0 md:space-x-6 text-lg mt-3 md:mt-0">
+      <a href="{{ url_for('players.list_players') }}" class="text-primary hover:text-primary transition-all flex items-center gap-2">
+        🏆 <span>Jugadores</span>
       </a>
-      <a href="{{ url_for('training.training') }}" class="text-white hover:text-primary transition-all">
-        📅 Entrenamiento
+      <a href="{{ url_for('training.training') }}" class="text-primary hover:text-primary transition-all flex items-center gap-2">
+        📅 <span>Entrenamiento</span>
       </a>
     </div>
   </nav>
 
-  <main class="container mx-auto px-6 py-4">
+  <main class="container mx-auto px-6 py-6">
     {% block content %}{% endblock %}
   </main>
 
+  <script>
+    document.getElementById('menu-toggle').addEventListener('click', function() {
+      document.getElementById('menu').classList.toggle('hidden');
+    });
+  </script>
 </body>
 </html>
