@@ -1,42 +1,61 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
 {% block title %}Entrenamiento{% endblock %}
-
 {% block content %}
-<h2 class="text-lg mb-3">Añadir Puntos al Entrenamiento</h2>
 
-<form method="POST">
-    <input type="date" name="date" value="{{ date }}" class="bg-gray-700 rounded px-2 py-1 mb-4" required>
+<!-- Date picker form -->
+<form method="POST" id="trainingForm" class="mb-2 flex gap-2 items-center text-xs">
+  <label for="dateInput">Fecha:</label>
+  <input
+    type="date"
+    id="dateInput"
+    name="date"
+    value="{{ date }}"
+    required
+    class="bg-gray-700 text-white rounded px-1 py-0.5 w-28"
+  />
 
-    <div class="overflow-auto mb-4">
-        <table class="w-full table-auto">
-            <thead class="bg-gray-800">
-                <tr>
-                    <th class="px-2 py-2">Jugador</th>
-                    <th class="px-2 py-2">Puntos</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for player in players %}
-                <tr class="border-b border-gray-700">
-                    <td class="px-2 py-2">{{ player.name }}</td>
-                    <td class="px-2 py-2">
-                        <input type="number" name="points_{{player.id}}" min="0"
-                               value="{{ existing_points[player.id] if player.id in existing_points else '' }}"
-                               class="bg-gray-700 rounded px-2 py-1 w-full">
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-    <button type="submit" class="bg-primary text-dark font-semibold rounded px-3 py-2 mt-4 w-full">
-        Guardar puntos
-    </button>
 </form>
 
+<!-- JS to auto-reload on date change -->
 <script>
-document.querySelector('input[type="date"]').addEventListener('change', function() {
-    window.location.href = "{{ url_for('training.training') }}?date=" + this.value;
-});
+  document.getElementById('dateInput').addEventListener('change', function() {
+    const selectedDate = this.value;
+    window.location.href = "{{ url_for('training.training') }}" + "?date=" + selectedDate;
+  });
 </script>
+
+<!-- Scrollable table -->
+<div class="overflow-x-auto w-full">
+  <form method="POST">
+    <input type="hidden" name="date" value="{{ date }}">
+    <table class="table-auto w-full border-collapse whitespace-nowrap border border-gray-700 text-xs">
+      <thead>
+        <tr class="bg-gray-800">
+          <th class="px-1 py-1 text-left border-r border-gray-700">Jugador</th>
+          <th class="px-1 py-1 text-center">Puntos</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for player in players %}
+        <tr class="border-b border-gray-700">
+          <td class="px-1 py-1 border-r border-gray-700 text-left">{{ player.name }}</td>
+          <td class="px-1 py-1 text-center">
+            <input
+              type="number"
+              name="points_{{ player.id }}"
+              value="{{ existing_points.get(player.id, '') }}"
+              min="0"
+              class="bg-gray-700 text-white rounded px-1 py-0.5 w-16 text-center"
+            />
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" class="mt-2 bg-primary text-dark rounded px-2 py-0.5 font-semibold">
+      Guardar puntos
+    </button>
+  </form>
+</div>
+
 {% endblock %}
