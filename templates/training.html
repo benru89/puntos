@@ -1,42 +1,42 @@
 {% extends "base.html" %}
-{% block title %}Training Points{% endblock %}
+{% block title %}Entrenamiento{% endblock %}
+
 {% block content %}
-<h1>Add Training Points</h1>
+<h2 class="text-lg mb-3">Añadir Puntos al Entrenamiento</h2>
 
-<form method="POST" id="points-form">
-    <label for="date">Training Date:</label>
-    <input type="date" id="date" name="date" value="{{ date }}" required>
+<form method="POST">
+    <input type="date" name="date" value="{{ date }}" class="bg-gray-700 rounded px-2 py-1 mb-4" required>
 
-    <table border="1" cellpadding="5">
-        <tr>
-            <th>Player Name</th>
-            <th>Points</th>
-        </tr>
-        {% for player in players %}
-        <tr>
-            <td>{{ player.name }}</td>
-            <td>
-                <input type="number"
-                       name="points_{{ player.id }}"
-                       min="0"
-                       value="{{ existing_points[player.id] if player.id in existing_points else '' }}">
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="overflow-auto mb-4">
+        <table class="w-full table-auto">
+            <thead class="bg-gray-800">
+                <tr>
+                    <th class="px-2 py-2">Jugador</th>
+                    <th class="px-2 py-2">Puntos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players %}
+                <tr class="border-b border-gray-700">
+                    <td class="px-2 py-2">{{ player.name }}</td>
+                    <td class="px-2 py-2">
+                        <input type="number" name="points_{{player.id}}" min="0"
+                               value="{{ existing_points[player.id] if player.id in existing_points else '' }}"
+                               class="bg-gray-700 rounded px-2 py-1 w-full">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <br>
-    <button type="submit">Submit Points</button>
+    <button type="submit" class="bg-primary text-dark font-semibold rounded px-3 py-2 mt-4 w-full">
+        Guardar puntos
+    </button>
 </form>
 
 <script>
-    const dateInput = document.getElementById('date');
-
-    dateInput.addEventListener('change', function() {
-        const selectedDate = this.value;
-        // Reload the page with the selected date as a query parameter
-        window.location.href = `{{ url_for('training.training') }}?date=${selectedDate}`;
-    });
+document.querySelector('input[type="date"]').addEventListener('change', function() {
+    window.location.href = "{{ url_for('training.training') }}?date=" + this.value;
+});
 </script>
-
 {% endblock %}

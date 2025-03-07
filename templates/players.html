@@ -1,51 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Puntos Mensuales{% endblock %}
-{% block content %}
-<h1>Puntos Mensuales por Jugador</h1>
 
-<form method="GET">
-    <label for="month">Mes:</label>
-    <select name="month" id="month">
+{% block content %}
+<h2 class="text-lg mb-3">Puntos Mensuales por Jugador</h2>
+
+<form method="GET" class="mb-4 flex items-center gap-2">
+    <select name="month" class="bg-gray-700 rounded px-2 py-1">
         {% for m in range(1,13) %}
-        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+        <option value="{{ m }}" {% if m == month %}selected{% endif %}>Mes {{ m }}</option>
         {% endfor %}
     </select>
 
-    <label for="year">Año:</label>
-    <input type="number" name="year" id="year" value="{{ year }}">
-    <button type="submit">Mostrar</button>
+    <input type="number" name="year" value="{{ year }}" class="bg-gray-700 rounded px-2 py-1 w-24">
+    <button type="submit" class="bg-primary text-dark font-semibold rounded px-3 py-1">Ver</button>
 </form>
 
-<table border="1" cellpadding="5">
-    <tr>
-        <th></th>
-        <th>Jugador</th>
-        {% for date in training_dates %}
-            <th>{{ date.strftime('%d %b') }}</th>
-        {% endfor %}
-    </tr>
-    {% for player in players %}
-    <tr>
-        <td style="text-align: center;">
-            <form method="POST" action="{{ url_for('players.delete_player', player_id=player.id) }}"
-                  onsubmit="return confirm('¿Seguro que deseas borrar este jugador?');">
-                <button type="submit" style="background:none; border:none; cursor:pointer;">🗑️</button>
-            </form>
-        </td>
-        <td>{{ player.name }}</td>
-        {% for date in training_dates %}
-            <td>{{ training_points[player.id][date] if player.id in training_points and date in training_points[player.id] else '' }}</td>
-        {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
+<div class="overflow-auto">
+    <table class="w-full table-auto">
+        <thead class="bg-gray-800">
+            <tr>
+                <th class="px-2 py-2"></th>
+                <th class="px-2 py-2 text-left">Jugador</th>
+                {% for date in training_dates %}
+                    <th class="px-2 py-2">{{ date.strftime('%d %b') }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in players %}
+            <tr class="border-b border-gray-700">
+                <td class="px-1 py-2 text-center">
+                    <form method="POST" action="{{ url_for('players.delete_player', player_id=player.id) }}"
+                          onsubmit="return confirm('¿Borrar este jugador?');">
+                        <button type="submit">🗑️</button>
+                    </form>
+                </td>
+                <td class="px-2 py-2">{{ player.name }}</td>
+                {% for date in training_dates %}
+                    <td class="px-2 py-2 text-center">
+                        {{ training_points[player.id][date] if player.id in training_points and date in training_points[player.id] else '-' }}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<hr>
-
-<h2>Añadir Jugador</h2>
-<form action="{{ url_for('players.add_player') }}" method="post">
-    <input type="text" name="name" placeholder="Nombre del jugador" required>
-    <button type="submit">Añadir jugador</button>
-</form>
-
+<div class="mt-6">
+    <h3 class="text-md mb-2">Añadir Jugador</h3>
+    <form action="{{ url_for('players.add_player') }}" method="post" class="flex gap-2">
+        <input type="text" name="name" placeholder="Nombre del jugador" required
+               class="bg-gray-700 rounded px-2 py-1 flex-grow">
+        <button type="submit" class="bg-primary text-dark font-semibold rounded px-3 py-1">Añadir</button>
+    </form>
+</div>
 {% endblock %}
