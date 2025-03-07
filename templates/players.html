@@ -18,7 +18,7 @@
 </form>
 
 <!-- Scrollable table -->
-<div class="overflow-x-auto w-full flex justify-end">
+<div class="overflow-x-auto w-full">
   <table class="table-auto min-w-full text-xs border-0 margin-top-10">
     <thead class="bg-gray-800">
       <tr>
@@ -85,6 +85,23 @@
         </tr>
       {% endfor %}
     </tbody>
+
+    <tfoot>
+        <form method="POST" action="{{url_for('players.add_player')}}">
+          <tr class="bg-gray-800">
+            <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center border-r border-gray-700" style="min-width:30px;">
+              <button type="submit" class="text-sm">+</button>
+            </td>
+            <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 border-r border-gray-700" style="min-width:80px;">
+              <input type="text" name="name" placeholder="Jugador" required class="bg-gray-700 text-white rounded px-1 py-0.5 w-full"/>
+            </td>
+            {% for date in training_dates %}
+              <td class="px-1 py-1 border-r border-gray-700 text-center">-</td>
+            {% endfor %}
+            <td class="sticky right-0 z-10 bg-gray-600 text-white border-l border-gray-700 px-1 py-1 text-center">-</td>
+          </tr>
+        </form>
+      </tfoot>
   </table>
 </div>
 
