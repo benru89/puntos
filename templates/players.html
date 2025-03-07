@@ -45,27 +45,19 @@
     </thead>
 
     <tbody>
-      {% set total_players = players|length %}
-      {% if total_players > 10 %}
-        {% set sorted_players = players|sort(attribute='id', reverse=True) %}
-        {% set threshold_red = total_points[sorted_players[-5].id] if total_players > 5 else None %}
-        {% set threshold_yellow = total_points[sorted_players[-7].id] if total_players > 7 else None %}
-      {% endif %}
+        {% set total_players = players|length %}
 
-      {% for player in players %}
+        {% for player in players %}
         {% set row_class = "" %}
-        {% if total_players > 10 %}
-          {% if loop.index > total_players - 5 and total_points[player.id] < threshold_red %}
-            {% set row_class = "bg-red-300 text-dark" %} <!-- Bottom 5 -->
-          {% elif total_points[player.id] < threshold_red  %}
-            {% set row_class = "bg-red-300 text-dark" %} <!-- Bottom 5 and ties -->
-          {% elif total_points[player.id] <= threshold_red  %}
-            {% set row_class = "bg-yellow-300 text-dark" %} <!-- Bottom 5 and ties -->
-          {% elif loop.index > total_players - 7 %}
-            {% set row_class = "bg-yellow-300 text-dark" %}
-          {% endif %}
-        {% endif %}
 
+        {% if total_players > 10 and last_red_index is not none %}
+            {% if loop.index > last_red_index %}  {# Mark red players #}
+            {% set row_class = "bg-red-300 text-dark" %}
+            {% elif loop.index <= last_red_index and (loop.index > last_red_index - 2)  %} 
+            {% set row_class = "bg-yellow-300 text-dark" %}
+            {% endif %}
+        {% endif %}
+        
         <tr class="border-b border-gray-700 {{row_class}}">
           <!-- Delete Player -->
           <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center text-white border-0" style="min-width:30px;">

@@ -28,21 +28,34 @@ def list_players():
         training_points[tp.player_id][tp.date.strftime('%Y-%m-%d')] = tp.points
         total_points[tp.player_id] += tp.points
 
-    # Ordena los jugadores por puntos totales (mayor a menor)
+    # Sort players by total points (lowest to highest)
     players_sorted = sorted(players, key=lambda p: total_points[p.id], reverse=True)
-
+   
     # Fechas de entrenamiento únicas ordenadas
     training_dates = sorted({tp.date for tp in points_query})
 
+    last_red_index = None
+
+    if len(players_sorted) > 10:
+        threshold_red = total_points[players_sorted[-6].id]  # Bottom 7 threshold
+
+    for index, player in enumerate(players_sorted):
+        if total_points[player.id] <= threshold_red:
+            last_red_index = index  # Store last red player index
+            break
+
+    # Pass last_red_index to template
     return render_template(
         'players.html',
         players=players_sorted,
-        training_dates=training_dates,
-        training_points=training_points,
         total_points=total_points,
+        training_points=training_points,
+        training_dates=training_dates,
+        last_red_index=last_red_index,  
         month=month,
         year=year
     )
+
 
 @players_bp.route('/add_player', methods=['POST'])
 def add_player():
