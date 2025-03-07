@@ -2,178 +2,109 @@
 {% block title %}Jugadores{% endblock %}
 {% block content %}
 
-<form method="GET" class="flex gap-2 items-center mb-2 text-xs">
-  <label for="monthSelect" class="font-semibold">Mes:</label>
-  <select
-    id="monthSelect"
-    name="month"
-    class="bg-gray-700 text-white rounded px-1 py-0.5"
-  >
+<!-- Month/Year Selector -->
+<form method="GET" class="mb-2 flex gap-2 items-center text-xs">
+  <label for="monthSelect">Mes:</label>
+  <select id="monthSelect" name="month" class="bg-gray-700 text-white rounded px-1 py-0.5">
     {% for m in range(1,13) %}
-      <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+      <option value="{{m}}" {% if m == month %}selected{% endif %}>{{m}}</option>
     {% endfor %}
   </select>
 
-  <label for="yearInput" class="font-semibold">Año:</label>
-  <input
-    id="yearInput"
-    type="number"
-    name="year"
-    value="{{ year }}"
-    class="bg-gray-700 text-white rounded px-1 py-0.5 w-16"
-  />
+  <label for="yearInput">Año:</label>
+  <input id="yearInput" type="number" name="year" value="{{year}}" class="bg-gray-700 text-white rounded px-1 py-0.5 w-16"/>
 
-  <button
-    class="bg-primary text-dark rounded px-2 py-0.5 font-semibold"
-    type="submit"
-  >
-    Ver
-  </button>
+  <button type="submit" class="bg-primary text-dark rounded px-2 py-0.5">Ver</button>
 </form>
 
-<!-- 
-  For horizontal scroll, ensure:
-  1) The container has overflow-x-auto
-  2) The table has min-w-max (or a forced width) so it won't shrink to fit.
--->
-<div class="overflow-x-auto w-full relative">
-  <table 
-    class="table-auto min-w-max border-collapse whitespace-nowrap border border-gray-700 text-xs w-full"
-  >
-    <thead>
-      <tr class="bg-gray-800">
-        <!-- 1ª Col (Borrar) - Sticky, narrow -->
-        <th
-          class="sticky left-0 z-20 bg-gray-800 border-r border-gray-700 px-1 py-1 text-center"
-          style="min-width: 30px;"
-        ></th>
-
-        <!-- 2ª Col (Jugador) - Sticky, somewhat wider -->
-        <th
-          class="sticky left-8 z-20 bg-gray-800 border-r border-gray-700 px-1 py-1 text-center"
-          style="min-width: 30px;"
-        >
+<!-- Scrollable table -->
+<div class="overflow-x-auto w-full">
+  <table class="table-auto min-w-full text-xs border-0">
+    <thead class="bg-gray-800">
+      <tr>
+        <!-- Delete -->
+        <th class="sticky left-0 z-20 bg-gray-800 border-r border-gray-700 px-1 py-1" style="min-width:30px;"></th>
+        
+        <!-- Player Name -->
+        <th class="sticky left-8 z-20 bg-gray-800 border-r border-gray-700 px-1 py-1 text-left" style="min-width:80px;">
           Jugador
         </th>
 
-        <!-- Fechas -->
+        <!-- Training dates -->
         {% for date in training_dates %}
-          {% if loop.last %}
-            <!-- Última col (sticky derecha) -->
-            <th
-              class="sticky right-0 z-20 bg-gray-300 text-dark border-l border-black px-2 py-1 text-center"
-              style="min-width: 50px;"
-            >
-              {{ date.strftime('%d %b') }}
-            </th>
-          {% else %}
-            <th 
-              class="border-r border-gray-700 px-2 py-1 text-center"
-              style="min-width: 50px;"
-            >
-              {{ date.strftime('%d %b') }}
-            </th>
-          {% endif %}
+          <th class="border-r border-gray-700 px-1 py-1 text-center" style="min-width:50px;">
+            {{ date.strftime('%d %b') }}
+          </th>
         {% endfor %}
+
+        <!-- Sticky Total Column -->
+        <th class="sticky right-0 z-20 bg-gray-600 text-white border-l border-gray-700 px-1 py-1 text-center" style="min-width:50px;">
+          Total
+        </th>
       </tr>
     </thead>
 
     <tbody>
+      {% set total_players = players|length %}
       {% for player in players %}
-      <tr class="border-b border-gray-700">
-        <!-- 1ª Col: Eliminar -->
-        <td
-          class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center"
-          style="min-width: 30px;"
-        >
-          <form
-            method="POST"
-            action="{{ url_for('players.delete_player', player_id=player.id) }}"
-            onsubmit="return confirm('¿Borrar este jugador?');"
-          >
-            <button type="submit" class="text-sm leading-none">–</button>
-          </form>
-        </td>
-
-        <!-- 2ª Col: Jugador -->
-        <td
-        class="sticky left-8 z-10 bg-gray-900 px-1 py-1 border-r border-gray-700"
-        style="min-width: 80px;"
-        >
-        {{ player.name }}
-        </td>
-
-        <!-- Resto de fechas -->
-        {% for date in training_dates %}
-          {% if loop.last %}
-          <td
-            class="sticky right-0 z-10 bg-gray-300 text-dark border-l border-black px-2 py-1 text-center"
-            style="min-width: 50px;"
-          >
-            {{ training_points[player.id][date] if player.id in training_points and date in training_points[player.id] else '-' }}
-          </td>
-          {% else %}
-          <td
-            class="px-2 py-1 border-r border-gray-700 text-center"
-            style="min-width: 50px;"
-          >
-            {{ training_points[player.id][date] if player.id in training_points and date in training_points[player.id] else '-' }}
-          </td>
+        {% set row_class = "" %}
+        {% if total_players > 10 %}
+          {% if loop.index > total_players - 5 %}
+            {% set row_class = "bg-red-900" %} <!-- Bottom 5 -->
+          {% elif loop.index > total_players - 7 %}
+            {% set row_class = "bg-yellow-700" %} <!-- Next 2 -->
+          {% elif loop.index == 1 %}
+            {% set row_class = "bg-green-700" %} <!-- Top player -->
           {% endif %}
-        {% endfor %}
-      </tr>
+        {% endif %}
+
+        <tr class="border-b border-gray-700 {{row_class}}">
+          <!-- Delete Player -->
+          <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center border-r border-gray-700" style="min-width:30px;">
+            <form method="POST" action="{{url_for('players.delete_player', player_id=player.id)}}" onsubmit="return confirm('¿Borrar este jugador?');">
+              <button type="submit" class="text-sm">–</button>
+            </form>
+          </td>
+
+          <!-- Player Name -->
+          <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 text-left border-r border-gray-700" style="min-width:80px;">
+            {{player.name}}
+          </td>
+
+          <!-- Points per training -->
+          {% for date in training_dates %}
+            <td class="px-1 py-1 text-center border-r border-gray-700" style="min-width:50px;">
+              {{training_points[player.id][date.strftime('%Y-%m-%d')] if date.strftime('%Y-%m-%d') in training_points[player.id] else '-'}}
+            </td>
+          {% endfor %}
+
+          <!-- Sticky total points column -->
+          <td class="sticky right-0 z-10 bg-gray-600 text-white border-l border-gray-700 px-1 py-1 text-center font-semibold" style="min-width:50px;">
+            {{total_points[player.id]}}
+          </td>
+        </tr>
       {% endfor %}
     </tbody>
 
-    <!-- Fila para añadir jugador -->
+    <!-- Add Player Row -->
     <tfoot>
-      <form method="POST" action="{{ url_for('players.add_player') }}">
+      <form method="POST" action="{{url_for('players.add_player')}}">
         <tr class="bg-gray-800">
-          <!-- Col 1: Botón añadir (+) -->
-          <td
-            class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center"
-            style="min-width: 30px;"
-          >
-            <button type="submit" class="text-sm leading-none">+</button>
+          <td class="sticky left-0 z-10 bg-gray-900 px-1 py-1 text-center border-r border-gray-700" style="min-width:30px;">
+            <button type="submit" class="text-sm">+</button>
           </td>
-
-          <!-- Col 2: Input para nombre -->
-          <!-- Col 2: Input para nombre (más pequeño) -->
-            <td
-            class="sticky left-8 z-10 bg-gray-900 px-1 py-1 border-r border-gray-700"
-            style="min-width: 40px;"
-            >
-            <input
-            type="text"
-            name="name"
-            placeholder="Jugador"
-            required
-            class="bg-gray-700 text-white rounded px-1 py-0.5 w-16"
-            />
-            </td>
-
-
-          <!-- Otras cols, no modificables -->
+          <td class="sticky left-8 z-10 bg-gray-900 px-1 py-1 border-r border-gray-700" style="min-width:80px;">
+            <input type="text" name="name" placeholder="Jugador" required class="bg-gray-700 text-white rounded px-1 py-0.5 w-full"/>
+          </td>
           {% for date in training_dates %}
-            {% if loop.last %}
-            <td
-              class="sticky right-0 z-10 bg-gray-300 text-dark border-l border-black px-2 py-1 text-center"
-              style="min-width: 50px;"
-            >
-              -
-            </td>
-            {% else %}
-            <td
-              class="px-2 py-1 border-r border-gray-700 text-center"
-              style="min-width: 50px;"
-            >
-              -
-            </td>
-            {% endif %}
+            <td class="px-1 py-1 border-r border-gray-700 text-center">-</td>
           {% endfor %}
+          <td class="sticky right-0 z-10 bg-gray-600 text-white border-l border-gray-700 px-1 py-1 text-center">-</td>
         </tr>
       </form>
     </tfoot>
   </table>
 </div>
+
+
 {% endblock %}
