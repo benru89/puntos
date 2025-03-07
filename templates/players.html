@@ -1,33 +1,51 @@
 {% extends "base.html" %}
-{% block title %}Players and Monthly Points{% endblock %}
+{% block title %}Puntos Mensuales{% endblock %}
 {% block content %}
-<h1>Players - Monthly Points</h1>
+<h1>Puntos Mensuales por Jugador</h1>
 
 <form method="GET">
-    <select name="month">
+    <label for="month">Mes:</label>
+    <select name="month" id="month">
         {% for m in range(1,13) %}
-        <option value="{{ m }}" {% if m == month %}selected{% endif %}>Month {{ m }}</option>
+        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
         {% endfor %}
     </select>
-    <input type="number" name="year" value="{{year}}" required>
-    <button type="submit">Filter</button>
+
+    <label for="year">Año:</label>
+    <input type="number" name="year" id="year" value="{{ year }}">
+    <button type="submit">Mostrar</button>
 </form>
 
 <table border="1" cellpadding="5">
     <tr>
-        <th>Player</th>
+        <th></th>
+        <th>Jugador</th>
         {% for date in training_dates %}
-        <th>{{ date.strftime('%d %b') }}</th>
+            <th>{{ date.strftime('%d %b') }}</th>
         {% endfor %}
     </tr>
     {% for player in players %}
     <tr>
+        <td style="text-align: center;">
+            <form method="POST" action="{{ url_for('players.delete_player', player_id=player.id) }}"
+                  onsubmit="return confirm('¿Seguro que deseas borrar este jugador?');">
+                <button type="submit" style="background:none; border:none; cursor:pointer;">🗑️</button>
+            </form>
+        </td>
         <td>{{ player.name }}</td>
         {% for date in training_dates %}
-        <td>{{ training_points.get(player.id, {}).get(date, '') }}</td>
+            <td>{{ training_points[player.id][date] if player.id in training_points and date in training_points[player.id] else '' }}</td>
         {% endfor %}
     </tr>
     {% endfor %}
 </table>
+
+<hr>
+
+<h2>Añadir Jugador</h2>
+<form action="{{ url_for('players.add_player') }}" method="post">
+    <input type="text" name="name" placeholder="Nombre del jugador" required>
+    <button type="submit">Añadir jugador</button>
+</form>
 
 {% endblock %}

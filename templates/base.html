@@ -1,15 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Training App{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}App Entrenamientos{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary: '#facc15', /* softer yellow */
+                dark: '#18181b' /* softer black */
+              }
+            }
+          }
+        }
+    </script>
 </head>
-<body>
-    <nav>
-        <a href="/players">Players</a> | 
-        <a href="/training">Training</a>
+<body class="bg-dark text-white min-h-screen">
+    <nav class="bg-dark shadow p-4 flex justify-between items-center">
+        <h1 class="text-xl font-semibold">App Entrenamientos</h1>
+        <div>
+            <a href="{{ url_for('players.list_players') }}" class="text-primary hover:underline mx-2">Jugadores</a>
+            <a href="{{ url_for('training.training') }}" class="text-primary hover:underline mx-2">Entrenamiento</a>
+        </div>
     </nav>
-    <hr>
-    {% block content %}{% endblock %}
+
+    <main class="p-4">
+        {% block content %}{% endblock %}
+    </main>
 </body>
 </html>
